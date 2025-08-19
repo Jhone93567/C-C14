@@ -18,9 +18,9 @@ int main()
 
     arquivo >> dados;
 
-    std::string nome = dados["NOME"];
+    std::string nome = dados["name"];
 
-    int idade = dados["IDADE"];
+    int idade = dados["age"];
 
     std::cout << "Nome: " << nome << std::endl;
     std::cout << "Idade: " << idade << std::endl;
