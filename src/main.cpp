@@ -3,14 +3,15 @@
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
+using namespace std;
 
 int main()
 {
-    std::ifstream arquivo("../teste.json");
+    ifstream arquivo("../teste.json");
 
     if (!arquivo.is_open())
     {
-        std::cerr << "Erro ao abrir o arquivo" << std::endl;
+        cerr << "Erro ao abrir o arquivo" << endl;
         return 1;
     }
 
@@ -18,12 +19,19 @@ int main()
 
     arquivo >> dados;
 
-    std::string nome = dados["nome"];
-
-    int idade = dados["idade"];
-
-    std::cout << "Nome: " << nome << std::endl;
-    std::cout << "Idade: " << idade << std::endl;
+    try
+    {
+        string nome = dados["nome"];
+    
+        int idade = dados["idade"];
+        
+        cout << "Nome: " << nome << endl;
+        cout << "Idade: " << idade << endl;
+    }
+    catch(const exception& e)
+    {
+        cerr << e.what() << '\n';
+    }
 
     return 0;
 }
