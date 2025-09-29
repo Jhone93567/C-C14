@@ -37,5 +37,3 @@ cmake --build .
 ~~~
 ./Leitor
 ~~~
-
-**Atenção: O código abre o arquivo teste.json que deve estar um nível acima da pasta `build/`**

@@ -1,22 +1,31 @@
 #include "pessoa.hpp"
-#include "nlohmann/json.hpp"
-#include <fstream>
-#include <stdexcept>
 
 using json = nlohmann::json;
 using namespace std;
 
-Pessoa ler_json(const string& caminho) {
+void from_json(const json &j, Pessoa &p)
+{
+    j.at("nome").get_to(p.nome);
+    j.at("idade").get_to(p.idade);
+}
+
+Pessoa ler_json(const std::string &caminho)
+{
     ifstream arquivo(caminho);
-    if (!arquivo.is_open()) {
+    if (!arquivo.is_open())
+    {
         throw runtime_error("Erro ao abrir o arquivo");
     }
 
     json dados;
-    arquivo >> dados;
+    try
+    {
+        dados = json::parse(arquivo);
+    }
+    catch (const json::parse_error &e)
+    {
+        throw;
+    }
 
-    Pessoa p;
-    p.nome = dados.at("nome");
-    p.idade = dados.at("idade");
-    return p;
+    return dados.get<Pessoa>();
 }
