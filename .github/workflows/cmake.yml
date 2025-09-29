@@ -1,0 +1,87 @@
+name: CI Completo com Testes, Build e Notificação
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  testes:
+    name: Testar em ${{ matrix.os }}
+    strategy:
+      # Não cancelar os outros jobs da matriz se um deles falhar
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: 1. Baixar o código do repositório
+      uses: actions/checkout@v4
+
+    - name: 2. Configurar o CMake
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+
+    - name: 3. Compilar o projeto e os testes
+      run: cmake --build build --config Debug
+
+    - name: 4. Executar os testes
+      run: ctest --test-dir build -C Debug --verbose --output-log test_report.log
+      continue-on-error: true
+
+    - name: 5. Fazer upload do relatório de testes como artefato
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: relatorio-testes-${{ matrix.os }}
+        path: build/test_report.log
+
+  build:
+    name: Compilar e Empacotar
+    needs: testes
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Baixar o código do repositório
+      uses: actions/checkout@v4
+
+    - name: 2. Configurar o CMake para Release
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: 3. Compilar o projeto em modo Release
+      run: cmake --build build --config Release
+
+    - name: 4. Empacotar o artefato para distribuição
+      run: |
+        mkdir dist
+        cp build/leitor dist/
+        cp data/teste.json dist/
+        # Cria o pacote .tar.gz
+        cd dist
+        tar -czvf ../leitor-linux-package.tar.gz .
+
+    - name: 5. Fazer upload do pacote como artefato
+      uses: actions/upload-artifact@v4
+      with:
+        name: pacote-leitor-linux
+        path: leitor-linux-package.tar.gz
+
+  notificacao:
+    name: Enviar Notificação por E-mail
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Baixar o código do repositório para aceder ao script
+      uses: actions/checkout@v4
+
+    - name: 2. Executar o script de notificação
+      run: |
+        chmod +x .github/scripts/send_notification.sh
+        ./.github/scripts/send_notification.sh
+      env:
+        EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
+
