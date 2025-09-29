@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     filesystem::path caminho_do_arquivo = diretorio_executavel / NOME_ARQUIVO_CONFIG;
 
     try {
-        Pessoa p = ler_json(caminho_do_arquivo);
+        Pessoa p = ler_json(caminho_do_arquivo.string());
         cout << "Nome: " << p.nome << endl;
         cout << "Idade: " << p.idade << endl;
     } catch (const exception& e) {

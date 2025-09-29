@@ -37,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: relatorio-testes-${{ matrix.os }}
-        path: build/test_report.log
+        path: test_report.log
 
   build:
     name: Compilar e Empacotar
